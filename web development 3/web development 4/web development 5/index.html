@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyPulse | Real-Time Weather Forecast</title>
+  <meta name="description" content="A modern, real-time weather web application providing current conditions, temperature, 24-hour hourly forecast, 7-day outlook, wind, humidity, UV index, and automatic location detection." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-weather="clear-day" data-unit="celsius">
+
+  <!-- Dynamic Atmospheric Background Elements (Gradients & Rain Particles) -->
+  <div class="sky-backdrop" id="skyBackdrop" aria-hidden="true">
+    <div class="ambient-sun-moon" id="sunMoonOrb"></div>
+    <div class="clouds-layer" id="cloudsLayer"></div>
+    <div class="particles-layer" id="particlesLayer"></div>
+  </div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+
+    <!-- Header / Navigation Bar -->
+    <header class="app-header">
+      <div class="app-brand">
+        <span class="brand-icon">⛅</span>
+        <h1 class="brand-name">Sky<span class="highlight">Pulse</span></h1>
+      </div>
+
+      <!-- Unit Switcher & Refresh Controls -->
+      <div class="header-controls">
+        <div class="unit-toggle-group" role="group" aria-label="Temperature Unit">
+          <button class="unit-btn active" id="unitCelsiusBtn" aria-pressed="true">°C</button>
+          <button class="unit-btn" id="unitFahrenheitBtn" aria-pressed="false">°F</button>
+        </div>
+
+        <button class="icon-btn" id="refreshBtn" title="Refresh Weather Data" aria-label="Refresh Weather Data">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Location Search & Geolocation Bar -->
+    <section class="search-section" aria-label="Location Search">
+      <form class="search-form" id="searchForm" role="search">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            id="locationInput"
+            class="search-input"
+            placeholder="Search city, state, or country (e.g., Tokyo, London, Paris)..."
+            autocomplete="off"
+            aria-label="Search city or location"
+            aria-autocomplete="list"
+            aria-controls="suggestionsList"
+          />
+          <button type="button" class="clear-btn" id="clearSearchBtn" aria-label="Clear search input" style="display: none;">✕</button>
+          
+          <!-- Live Auto-Suggestions Dropdown -->
+          <ul class="suggestions-list" id="suggestionsList" role="listbox" style="display: none;"></ul>
+        </div>
+
+        <button type="submit" class="btn btn-search" aria-label="Search location">
+          <span>Search</span>
+        </button>
+
+        <button type="button" class="btn btn-geo" id="geoBtn" title="Use current device GPS location" aria-label="Detect my current location">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+          </svg>
+          <span class="geo-text">My Location</span>
+        </button>
+      </form>
+
+      <!-- Quick Preset Cities & Recents -->
+      <div class="quick-locations">
+        <span class="quick-label">Popular:</span>
+        <div class="quick-tags" id="quickTags">
+          <button class="quick-pill" data-city="Tokyo">Tokyo</button>
+          <button class="quick-pill" data-city="New York">New York</button>
+          <button class="quick-pill" data-city="London">London</button>
+          <button class="quick-pill" data-city="Paris">Paris</button>
+          <button class="quick-pill" data-city="Sydney">Sydney</button>
+          <button class="quick-pill" data-city="Bengaluru">Bengaluru</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading Skeleton State -->
+    <div class="loading-state" id="loadingState" style="display: none;" aria-live="polite">
+      <div class="spinner"></div>
+      <p class="loading-text">Fetching latest weather telemetry...</p>
+    </div>
+
+    <!-- Error Card -->
+    <div class="error-banner" id="errorBanner" style="display: none;" role="alert">
+      <div class="error-icon">⚠️</div>
+      <div class="error-content">
+        <h3 class="error-title" id="errorTitle">Unable to fetch weather</h3>
+        <p class="error-message" id="errorMessage">Please check the location name and try again.</p>
+      </div>
+      <button class="btn-retry" id="retryBtn">Retry</button>
+    </div>
+
+    <!-- Main Weather Display Stage -->
+    <main class="weather-stage" id="weatherStage">
+
+      <!-- Current Weather Hero Card -->
+      <section class="current-weather-card" aria-label="Current Weather Conditions">
+        <div class="current-header">
+          <div class="location-details">
+            <h2 class="location-name" id="cityName">New York</h2>
+            <div class="location-sub">
+              <span id="countryName">United States</span>
+              <span class="dot-separator">•</span>
+              <span id="currentDate">Sunday, Sep 27</span>
+              <span class="dot-separator">•</span>
+              <span id="currentTime">11:58 AM</span>
+            </div>
+          </div>
+
+          <div class="live-badge">
+            <span class="live-dot"></span>
+            <span>Live Conditions</span>
+          </div>
+        </div>
+
+        <div class="current-body">
+          <div class="temp-group">
+            <div class="condition-icon-wrapper" id="conditionIconWrapper">
+              <!-- Animated SVG icon rendered dynamically -->
+              <span class="weather-emoji-large" id="weatherIcon">☀️</span>
+            </div>
+            
+            <div class="temp-readout">
+              <span class="temp-val" id="currentTemp">22</span>
+              <span class="temp-degree">°</span>
+            </div>
+          </div>
+
+          <div class="condition-summary">
+            <h3 class="condition-text" id="conditionText">Clear Sky</h3>
+            <div class="temp-extremes">
+              <span>Feels like <strong id="feelsLikeTemp">23°</strong></span>
+              <span class="divider">|</span>
+              <span>H: <strong id="highTemp">26°</strong> L: <strong id="lowTemp">17°</strong></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed Weather Metrics Grid -->
+      <section class="metrics-grid" aria-label="Key Atmospheric Metrics">
+        
+        <!-- Wind -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">💨</span>
+            <span class="metric-title">Wind</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-main-val">
+              <span class="val-num" id="windSpeed">14</span>
+              <span class="val-unit" id="windSpeedUnit">km/h</span>
+            </div>
+            <div class="metric-sub-val">
+              <span class="wind-compass" id="windCompass" style="transform: rotate(45deg);">➤</span>
+              <span id="windDirection">NE (45°)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">💧</span>
+            <span class="metric-title">Humidity</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-main-val">
+              <span class="val-num" id="humidity">58</span>
+              <span class="val-unit">%</span>
+            </div>
+            <div class="metric-sub-val" id="dewPoint">Dew point: 14°</div>
+          </div>
+        </div>
+
+        <!-- UV Index -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">☀️</span>
+            <span class="metric-title">UV Index</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-main-val">
+              <span class="val-num" id="uvIndex">5.2</span>
+              <span class="badge-uv uv-moderate" id="uvBadge">Moderate</span>
+            </div>
+            <div class="metric-sub-val" id="uvAdvice">Sun protection recommended</div>
+          </div>
+        </div>
+
+        <!-- Air Pressure -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">⏲️</span>
+            <span class="metric-title">Air Pressure</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-main-val">
+              <span class="val-num" id="airPressure">1014</span>
+              <span class="val-unit">hPa</span>
+            </div>
+            <div class="metric-sub-val" id="pressureStatus">Normal atmospheric level</div>
+          </div>
+        </div>
+
+        <!-- Precipitation Chance -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">🌧️</span>
+            <span class="metric-title">Precipitation</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-main-val">
+              <span class="val-num" id="precipProb">10</span>
+              <span class="val-unit">%</span>
+            </div>
+            <div class="metric-sub-val" id="precipAmount">0.0 mm expected today</div>
+          </div>
+        </div>
+
+        <!-- Sunrise & Sunset -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">🌅</span>
+            <span class="metric-title">Sun Schedule</span>
+          </div>
+          <div class="metric-body sun-schedule">
+            <div class="sun-item">
+              <span class="sun-icon">↑</span>
+              <div>
+                <span class="sun-label">Sunrise</span>
+                <strong id="sunriseTime">06:48 AM</strong>
+              </div>
+            </div>
+            <div class="sun-item">
+              <span class="sun-icon">↓</span>
+              <div>
+                <span class="sun-label">Sunset</span>
+                <strong id="sunsetTime">06:54 PM</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 24-Hour Hourly Forecast Carousel -->
+      <section class="hourly-forecast-card" aria-label="24-Hour Hourly Forecast">
+        <div class="card-section-header">
+          <h3 class="section-title">24-Hour Hourly Forecast</h3>
+          <span class="section-sub">Next 24 Hours</span>
+        </div>
+        <div class="hourly-carousel" id="hourlyCarousel" tabindex="0">
+          <!-- Dynamically populated 24 hours items -->
+        </div>
+      </section>
+
+      <!-- 7-Day Extended Forecast -->
+      <section class="daily-forecast-card" aria-label="7-Day Extended Forecast">
+        <div class="card-section-header">
+          <h3 class="section-title">7-Day Extended Forecast</h3>
+          <span class="section-sub">Weekly Outlook</span>
+        </div>
+        <div class="daily-list" id="dailyList">
+          <!-- Dynamically populated 7 days rows -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <p class="footer-note">
+        Powered by open meteorological models from <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>. Accurate, free, and open-source weather intelligence.
+      </p>
+      <div class="footer-copy">© 2026 SkyPulse Weather. Built with modern web APIs.</div>
+    </footer>
+
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- JavaScript Engine -->
+  <script src="script.js"></script>
+</body>
+</html>
