@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Fixed Navigation Menu Demo</title>
+  <meta name="description" content="A modern, interactive fixed navigation bar with scroll state transforms, dynamic hover effects, scrollspy active indicators, and theme controls." />
+  <!-- Google Fonts for sleek modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="dark">
+
+  <!-- =========================================================
+       FIXED INTERACTIVE NAVIGATION MENU
+       ========================================================= -->
+  <header class="navbar" id="navbar" role="banner">
+    <!-- Top Scroll Progress Indicator -->
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+
+    <div class="nav-container">
+      <!-- Brand Logo -->
+      <a href="#home" class="nav-logo" aria-label="AuraUI Home">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">Aura<span class="logo-highlight">Nav</span></span>
+      </a>
+
+      <!-- Desktop Navigation Menu Links -->
+      <nav class="nav-menu" id="navMenu" aria-label="Main Navigation">
+        <!-- Floating Hover Pill Highlight (Tracked with JavaScript) -->
+        <div class="nav-hover-pill" id="hoverPill" aria-hidden="true"></div>
+
+        <ul class="nav-list" id="navList">
+          <li class="nav-item">
+            <a href="#home" class="nav-link active" data-section="home">
+              <span class="link-label">Home</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#about" class="nav-link" data-section="about">
+              <span class="link-label">About</span>
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a href="#services" class="nav-link dropdown-toggle" data-section="services" id="servicesDropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="link-label">Features</span>
+              <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <!-- Submenu / Dropdown -->
+            <ul class="dropdown-menu" aria-labelledby="servicesDropdown">
+              <li>
+                <a href="#services" class="dropdown-item">
+                  <span class="dropdown-icon">⚡</span>
+                  <div>
+                    <span class="dropdown-title">Scroll Animations</span>
+                    <span class="dropdown-desc">Smooth backdrop blur & sizing</span>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#services" class="dropdown-item">
+                  <span class="dropdown-icon">🎨</span>
+                  <div>
+                    <span class="dropdown-title">Dynamic Color Shifts</span>
+                    <span class="dropdown-desc">Color adjustments on hover & scroll</span>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#services" class="dropdown-item">
+                  <span class="dropdown-icon">🎯</span>
+                  <div>
+                    <span class="dropdown-title">Scrollspy Tracking</span>
+                    <span class="dropdown-desc">Auto-highlights current section</span>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#portfolio" class="nav-link" data-section="portfolio">
+              <span class="link-label">Showcase</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#pricing" class="nav-link" data-section="pricing">
+              <span class="link-label">Specs</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#contact" class="nav-link" data-section="contact">
+              <span class="link-label">Contact</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Right Navigation Actions: Preset Theme Switcher & CTA -->
+      <div class="nav-actions">
+        <!-- Interactive Theme Palette Switcher -->
+        <div class="theme-selector-wrapper" title="Change navbar color scheme">
+          <button class="theme-badge-btn" id="themePaletteBtn" aria-label="Switch Navbar Theme" aria-expanded="false">
+            <span class="palette-dot current-dot"></span>
+            <span class="theme-name" id="currentThemeName">Midnight</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          
+          <div class="theme-dropdown-panel" id="themeDropdownPanel" role="menu">
+            <div class="theme-panel-header">Navbar Color Palette</div>
+            <button class="palette-option active" data-scheme="midnight" role="menuitem">
+              <span class="color-preview preview-midnight"></span>
+              <span>Midnight Indigo</span>
+            </button>
+            <button class="palette-option" data-scheme="cyberpunk" role="menuitem">
+              <span class="color-preview preview-cyberpunk"></span>
+              <span>Neon Emerald</span>
+            </button>
+            <button class="palette-option" data-scheme="sunset" role="menuitem">
+              <span class="color-preview preview-sunset"></span>
+              <span>Sunset Crimson</span>
+            </button>
+            <button class="palette-option" data-scheme="light" role="menuitem">
+              <span class="color-preview preview-light"></span>
+              <span>Clean Light Glass</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Primary CTA Button -->
+        <a href="#contact" class="btn btn-primary nav-cta">
+          <span>Get Started</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7H11.5M11.5 7L7.5 3M11.5 7L7.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+
+        <!-- Mobile Hamburger Toggle Button -->
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Scroll Telemetry Pill (Visual Indicator of Navbar State) -->
+    <div class="scroll-telemetry" id="scrollTelemetry">
+      <span class="telemetry-state">Top (Default)</span>
+      <span class="telemetry-separator">•</span>
+      <span class="telemetry-px">0px scrolled</span>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       PAGE CONTENT (SECTIONS TO DEMONSTRATE SCROLLING)
+       ========================================================= -->
+  <main id="mainContent">
+
+    <!-- HERO SECTION (#home) -->
+    <section id="home" class="section section-hero">
+      <div class="hero-glow-1" aria-hidden="true"></div>
+      <div class="hero-glow-2" aria-hidden="true"></div>
+      <div class="container hero-container">
+        <div class="hero-tag">
+          <span class="pulse-indicator"></span>
+          <span>Interactive Navigation Experience</span>
+        </div>
+        <h1 class="hero-title">
+          Dynamic Fixed Menu with <span class="gradient-text">Scroll & Hover</span> Intelligence
+        </h1>
+        <p class="hero-subtitle">
+          Watch the navigation bar seamlessly adapt its background opacity, blur, dimensions, and typography colors as you scroll down. Hover over any menu item to experience responsive micro-animations and magnetic highlighting.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#about" class="btn btn-primary btn-lg">
+            <span>Scroll Down to Test</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3V13M8 13L3.5 8.5M8 13L12.5 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#services" class="btn btn-secondary btn-lg">
+            <span>Explore Features</span>
+          </a>
+        </div>
+
+        <!-- Interactive Feature Badges -->
+        <div class="hero-metrics">
+          <div class="metric-card">
+            <span class="metric-icon">📌</span>
+            <div>
+              <strong>Position: Fixed</strong>
+              <span>Visible on all pages & sections</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">🔄</span>
+            <div>
+              <strong>Scroll Reactive</strong>
+              <span>Transitions color, padding & shadow</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">✨</span>
+            <div>
+              <strong>Hover Effects</strong>
+              <span>Color shifts & dynamic fluid pill</span>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">📍</span>
+            <div>
+              <strong>Scrollspy Active</strong>
+              <span>Tracks current page location</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION (#about) -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Core Concept</span>
+          <h2 class="section-title">How the Navigation Adapts</h2>
+          <p class="section-desc">The menu utilizes a combined synergy of semantic HTML5, modern CSS custom properties, and optimized JavaScript events.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-number">01</div>
+            <h3>Fixed Geometry & Z-Index</h3>
+            <p>The navbar is anchored with <code>position: fixed</code> at <code>top: 0</code> with high stacking context (<code>z-index: 1000</code>), ensuring continuous availability during deep scrolling.</p>
+            <div class="code-preview">position: fixed; top: 0; left: 0; width: 100%;</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-number">02</div>
+            <h3>Scroll-Triggered Class Mutation</h3>
+            <p>A high-performance scroll event throttled via <code>requestAnimationFrame</code> toggles the <code>.scrolled</code> class when passing a threshold, shifting styles smoothly with CSS transitions.</p>
+            <div class="code-preview">navbar.classList.toggle('scrolled', window.scrollY > 40);</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-number">03</div>
+            <h3>Fluid Hover Micro-Interactions</h3>
+            <p>Every navigation link responds instantly with accent color shifts and an intelligent gliding backdrop pill that calculates target coordinates in real-time.</p>
+            <div class="code-preview">transform: translate(x, y); width: w; height: h;</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES / SERVICES SECTION (#services) -->
+    <section id="services" class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Interactive Behaviors</span>
+          <h2 class="section-title">Experience the 4 States of the Menu</h2>
+          <p class="section-desc">Notice how the navbar dynamically behaves across different user contexts:</p>
+        </div>
+
+        <div class="states-grid">
+          <div class="state-card" data-state="top">
+            <div class="state-header">
+              <span class="state-badge">State 1</span>
+              <h4>Page Top / Idle</h4>
+            </div>
+            <p>Spacious padding, transparent or ultra-light glass background, high contrast header text.</p>
+            <ul class="state-specs">
+              <li><strong>Padding:</strong> 1.25rem 2rem</li>
+              <li><strong>Backdrop:</strong> Transparent / subtle gradient</li>
+              <li><strong>Shadow:</strong> None</li>
+            </ul>
+          </div>
+
+          <div class="state-card" data-state="scrolled">
+            <div class="state-header">
+              <span class="state-badge badge-active">State 2</span>
+              <h4>Scrolled State</h4>
+            </div>
+            <p>Frosted glass backdrop filter, elevated drop shadow, compressed height, and border-bottom separator.</p>
+            <ul class="state-specs">
+              <li><strong>Padding:</strong> 0.75rem 2rem (compact)</li>
+              <li><strong>Backdrop:</strong> rgba(15, 23, 42, 0.85) + 16px blur</li>
+              <li><strong>Shadow:</strong> 0 10px 30px rgba(0, 0, 0, 0.5)</li>
+            </ul>
+          </div>
+
+          <div class="state-card" data-state="hover">
+            <div class="state-header">
+              <span class="state-badge">State 3</span>
+              <h4>Item Hover</h4>
+            </div>
+            <p>Hovering over any link activates an accent color transition and an animated sliding highlight pill.</p>
+            <ul class="state-specs">
+              <li><strong>Font Color:</strong> Switches to bright primary accent</li>
+              <li><strong>Effect:</strong> Magnetic pill glow and subtle scale</li>
+              <li><strong>Dropdown:</strong> Smooth reveal with staggered items</li>
+            </ul>
+          </div>
+
+          <div class="state-card" data-state="scrollspy">
+            <div class="state-header">
+              <span class="state-badge">State 4</span>
+              <h4>Scrollspy Active</h4>
+            </div>
+            <p>IntersectionObserver detects which section occupies the viewport and marks the corresponding link as active.</p>
+            <ul class="state-specs">
+              <li><strong>Indicator:</strong> Persistent underline & dot marker</li>
+              <li><strong>Accessibility:</strong> <code>aria-current="page"</code></li>
+              <li><strong>Sync:</strong> Real-time hash update & sync</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHOWCASE / PORTFOLIO SECTION (#portfolio) -->
+    <section id="portfolio" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Showcase</span>
+          <h2 class="section-title">Color Palette Demonstration</h2>
+          <p class="section-desc">Try selecting different themes from the navbar palette selector to see the entire menu live-restyle its background, border, and accent colors.</p>
+        </div>
+
+        <div class="palette-cards-grid">
+          <div class="theme-card" onclick="window.setNavbarTheme('midnight')">
+            <div class="theme-card-banner midnight-banner"></div>
+            <div class="theme-card-body">
+              <h4>Midnight Indigo (Default)</h4>
+              <p>Deep slate glass with vivid electric violet and indigo gradients. Ideal for modern SaaS and developer tools.</p>
+              <button class="btn btn-outline btn-sm">Apply Theme</button>
+            </div>
+          </div>
+
+          <div class="theme-card" onclick="window.setNavbarTheme('cyberpunk')">
+            <div class="theme-card-banner cyberpunk-banner"></div>
+            <div class="theme-card-body">
+              <h4>Neon Emerald</h4>
+              <p>High-contrast dark obsidian background with glowing cyber-mint accents and hyper-visible hover lines.</p>
+              <button class="btn btn-outline btn-sm">Apply Theme</button>
+            </div>
+          </div>
+
+          <div class="theme-card" onclick="window.setNavbarTheme('sunset')">
+            <div class="theme-card-banner sunset-banner"></div>
+            <div class="theme-card-body">
+              <h4>Sunset Crimson</h4>
+              <p>Warm amber and coral glowing accents over smoky glass, giving a warm creative studio aesthetic.</p>
+              <button class="btn btn-outline btn-sm">Apply Theme</button>
+            </div>
+          </div>
+
+          <div class="theme-card" onclick="window.setNavbarTheme('light')">
+            <div class="theme-card-banner light-banner"></div>
+            <div class="theme-card-body">
+              <h4>Clean Light Glass</h4>
+              <p>Ultra-crisp white frosted acrylic background with dark slate typography and royal blue highlights.</p>
+              <button class="btn btn-outline btn-sm">Apply Theme</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPECS / PRICING SECTION (#pricing) -->
+    <section id="pricing" class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Architecture</span>
+          <h2 class="section-title">Technical Specifications</h2>
+          <p class="section-desc">Built adhering to modern web guidance and high-performance frontend standards.</p>
+        </div>
+
+        <div class="specs-table-wrapper">
+          <table class="specs-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Standard Used</th>
+                <th>Performance & Accessibility</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Fixed Positioning</strong></td>
+                <td><code>position: fixed; z-index: 1000;</code></td>
+                <td>GPU-composited layer with hardware acceleration.</td>
+              </tr>
+              <tr>
+                <td><strong>Scroll Interactivity</strong></td>
+                <td><code>requestAnimationFrame</code> + passive scroll listener</td>
+                <td>Zero scroll-lag, 60fps / 120fps buttery smooth execution.</td>
+              </tr>
+              <tr>
+                <td><strong>Hover Highlights</strong></td>
+                <td>CSS transitions + JS bounding rect pill tracker</td>
+                <td>Smooth cubic-bezier interpolation without layout thrashing.</td>
+              </tr>
+              <tr>
+                <td><strong>Scrollspy</strong></td>
+                <td><code>IntersectionObserver</code> API with rootMargin</td>
+                <td>Low CPU usage; does not calculate layout on scroll.</td>
+              </tr>
+              <tr>
+                <td><strong>Accessibility (a11y)</strong></td>
+                <td>WCAG AA contrast, <code>aria-current</code>, keyboard focus</td>
+                <td>Full keyboard tab navigation and screen reader support.</td>
+              </tr>
+              <tr>
+                <td><strong>Responsiveness</strong></td>
+                <td>CSS Grid, Flexbox, Mobile slide-in drawer</td>
+                <td>Seamless on mobile phones, tablets, laptops, and ultra-wide screens.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION (#contact) -->
+    <section id="contact" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Get In Touch</span>
+          <h2 class="section-title">Test Navigation to Bottom</h2>
+          <p class="section-desc">Notice how the "Contact" nav item is now automatically highlighted as active in the fixed navbar!</p>
+        </div>
+
+        <div class="contact-card">
+          <div class="contact-info">
+            <h3>Try Interactive Controls</h3>
+            <p>Scroll back to the top or click "Home" in the navbar to see the navbar smoothly return to its original transparent styling.</p>
+            <div class="contact-actions">
+              <a href="#home" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M8 3L3.5 7.5M8 3L12.5 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Back to Top</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       PAGE FOOTER
+       ========================================================= -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-logo">
+        <span class="logo-icon">✦</span>
+        <span>AuraNav Component</span>
+      </div>
+      <p class="footer-text">Created with HTML5, CSS3, and Vanilla JavaScript. Fully customizable and production-ready.</p>
+      <div class="footer-copy">© 2026 Interactive Navbar. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- Script file -->
+  <script src="script.js"></script>
+</body>
+</html>
+
