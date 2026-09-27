@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Tic-Tac-Toe | AI & Multiplayer</title>
+  <meta name="description" content="An interactive, modern Tic-Tac-Toe web application featuring 2-Player local multiplayer and an Unbeatable Minimax AI with difficulty settings, particle celebrations, and sound synthesis." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="neon">
+
+  <!-- Fullscreen Particle Confetti Canvas for Wins -->
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <div class="bg-glow glow-primary" aria-hidden="true"></div>
+  <div class="bg-glow glow-secondary" aria-hidden="true"></div>
+
+  <!-- App Header / Toolbar -->
+  <header class="app-header">
+    <div class="app-logo">
+      <span class="logo-mark"><span class="mark-x">✕</span><span class="mark-o">○</span></span>
+      <span class="logo-title">Nexus<span class="highlight">Toe</span></span>
+    </div>
+
+    <div class="header-tools">
+      <button class="tool-btn" id="soundToggleBtn" title="Toggle Sound (Muted by default)" aria-label="Toggle sound">
+        <span class="tool-icon" id="soundIcon">🔇</span>
+      </button>
+
+      <button class="tool-btn" id="shortcutsBtn" title="Keyboard Shortcuts" aria-label="View shortcuts">
+        <span class="tool-icon">⌨️</span>
+      </button>
+
+      <button class="tool-btn" id="themeToggleBtn" title="Toggle Theme (Neon / Midnight / Light)" aria-label="Switch theme">
+        <span class="tool-icon" id="themeIcon">⚡</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Stage -->
+  <main class="game-container">
+
+    <!-- Mode & Settings Selection Tabs -->
+    <section class="game-settings-panel" aria-label="Game Settings">
+      <!-- Mode Toggle: 2 Players vs vs AI -->
+      <div class="segmented-control mode-switch" role="radiogroup" aria-label="Game Mode">
+        <button class="segment-btn active" id="modePvpBtn" role="radio" aria-checked="true">
+          <span class="btn-icon">👥</span>
+          <span>2 Players</span>
+        </button>
+        <button class="segment-btn" id="modeAiBtn" role="radio" aria-checked="false">
+          <span class="btn-icon">🤖</span>
+          <span>vs AI</span>
+        </button>
+      </div>
+
+      <!-- AI Options Bar (Visible when vs AI is selected) -->
+      <div class="ai-config-bar" id="aiConfigBar" style="display: none;">
+        <div class="ai-config-group">
+          <label for="aiDifficulty" class="config-label">Difficulty:</label>
+          <select id="aiDifficulty" class="config-select" aria-label="Select AI Difficulty">
+            <option value="easy">Easy (Casual)</option>
+            <option value="medium">Medium (Tactical)</option>
+            <option value="unbeatable" selected>Master (Unbeatable AI)</option>
+          </select>
+        </div>
+
+        <div class="ai-config-group">
+          <span class="config-label">You Play:</span>
+          <div class="marker-pick-group">
+            <button class="marker-btn active" id="pickXBtn" title="Play as X (Goes first)">X</button>
+            <button class="marker-btn" id="pickOBtn" title="Play as O (Goes second)">O</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scoreboard Banner -->
+    <section class="scoreboard" aria-label="Scoreboard">
+      <div class="score-card score-x" id="cardX">
+        <div class="player-marker x-color">✕</div>
+        <div class="player-info">
+          <span class="player-title" id="titleX">Player X</span>
+          <span class="score-digits" id="scoreX">0</span>
+        </div>
+      </div>
+
+      <div class="score-card score-ties" id="cardTies">
+        <div class="player-marker tie-color">⚖</div>
+        <div class="player-info">
+          <span class="player-title">Ties</span>
+          <span class="score-digits" id="scoreTies">0</span>
+        </div>
+      </div>
+
+      <div class="score-card score-o" id="cardO">
+        <div class="player-marker o-color">○</div>
+        <div class="player-info">
+          <span class="player-title" id="titleO">Player O</span>
+          <span class="score-digits" id="scoreO">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Active Turn Status Indicator -->
+    <div class="status-banner" id="statusBanner" aria-live="polite">
+      <span class="turn-dot current-x-dot" id="turnDot"></span>
+      <span class="status-text" id="statusText">Player X's Turn</span>
+    </div>
+
+    <!-- 3x3 Tic-Tac-Toe Board Container -->
+    <div class="board-wrapper">
+      <!-- Grid Container -->
+      <div class="game-board" id="gameBoard" role="grid" aria-label="Tic-Tac-Toe Board">
+        <!-- 9 Interactive Grid Cells with keyboard and touch accessibility -->
+        <button class="cell" data-index="0" role="gridcell" aria-label="Top-left cell, empty"></button>
+        <button class="cell" data-index="1" role="gridcell" aria-label="Top-center cell, empty"></button>
+        <button class="cell" data-index="2" role="gridcell" aria-label="Top-right cell, empty"></button>
+        
+        <button class="cell" data-index="3" role="gridcell" aria-label="Middle-left cell, empty"></button>
+        <button class="cell" data-index="4" role="gridcell" aria-label="Middle-center cell, empty"></button>
+        <button class="cell" data-index="5" role="gridcell" aria-label="Middle-right cell, empty"></button>
+        
+        <button class="cell" data-index="6" role="gridcell" aria-label="Bottom-left cell, empty"></button>
+        <button class="cell" data-index="7" role="gridcell" aria-label="Bottom-center cell, empty"></button>
+        <button class="cell" data-index="8" role="gridcell" aria-label="Bottom-right cell, empty"></button>
+      </div>
+
+      <!-- Winning Strike Line Canvas/Overlay -->
+      <div class="win-strike" id="winStrike" aria-hidden="true"></div>
+    </div>
+
+    <!-- Match Bottom Controls -->
+    <footer class="game-controls">
+      <button class="ctrl-btn btn-restart" id="restartBtn" title="Restart current round (R)">
+        <span class="ctrl-icon">↺</span>
+        <span>New Round</span>
+        <span class="btn-kbd">R</span>
+      </button>
+
+      <button class="ctrl-btn btn-reset-score" id="resetScoreBtn" title="Reset all scoreboard wins">
+        <span class="ctrl-icon">🗑️</span>
+        <span>Reset Scores</span>
+      </button>
+    </footer>
+
+  </main>
+
+  <!-- Game Over Celebration Modal -->
+  <dialog class="game-modal" id="gameOverModal" aria-labelledby="modalHeading">
+    <div class="modal-card">
+      <div class="modal-badge" id="modalBadge">🏆 Victory!</div>
+      <h2 class="modal-heading" id="modalHeading">Player X Takes the Win!</h2>
+      <p class="modal-subtitle" id="modalSubtitle">Three markers in a row connected seamlessly.</p>
+
+      <div class="modal-actions">
+        <button class="modal-btn btn-primary" id="modalPlayAgainBtn">
+          <span>Play Again</span>
+          <span class="btn-kbd">Space</span>
+        </button>
+        <button class="modal-btn btn-secondary" id="modalCloseBtn">
+          <span>View Board</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <dialog class="game-modal" id="shortcutsModal" aria-labelledby="shortcutsHeading">
+    <div class="modal-card">
+      <div class="modal-header-row">
+        <h3 id="shortcutsHeading">⌨️ Keyboard Shortcuts</h3>
+        <button class="close-icon-btn" id="closeShortcutsBtn" aria-label="Close shortcuts">✕</button>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut-item">
+          <div class="kbd-group"><kbd>1</kbd> - <kbd>9</kbd></div>
+          <span>Place marker on matching cell (or Numpad 1-9)</span>
+        </div>
+        <div class="shortcut-item">
+          <div class="kbd-group"><kbd>R</kbd></div>
+          <span>Start a new round</span>
+        </div>
+        <div class="shortcut-item">
+          <div class="kbd-group"><kbd>M</kbd></div>
+          <span>Toggle sound effects</span>
+        </div>
+        <div class="shortcut-item">
+          <div class="kbd-group"><kbd>Space</kbd></div>
+          <span>Play again on game over</span>
+        </div>
+        <div class="shortcut-item">
+          <div class="kbd-group"><kbd>Esc</kbd></div>
+          <span>Close modal dialogues</span>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Toast Notification -->
+  <div class="toast-box" id="toastBox" role="alert" aria-live="polite"></div>
+
+  <!-- JavaScript Game Engine -->
+  <script src="script.js"></script>
+</body>
+</html>

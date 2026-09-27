@@ -1,0 +1,849 @@
+/* ==========================================================================
+   Nexus Tic-Tac-Toe - Modern Stylesheet
+   ========================================================================== */
+
+:root {
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-full: 9999px;
+}
+
+/* Theme 1: Cyberpunk Neon (Default) */
+body[data-theme="neon"] {
+  --bg-page: #06090e;
+  --bg-card: rgba(14, 21, 33, 0.7);
+  --bg-cell: rgba(18, 28, 44, 0.65);
+  --bg-cell-hover: rgba(26, 40, 64, 0.85);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(0, 240, 255, 0.5);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  /* Colors for X, O, and Ties */
+  --color-x: #00f0ff;
+  --color-x-glow: rgba(0, 240, 255, 0.4);
+  --color-o: #ff007f;
+  --color-o-glow: rgba(255, 0, 127, 0.4);
+  --color-tie: #facc15;
+  --color-tie-glow: rgba(250, 204, 21, 0.3);
+
+  --strike-color: #00f0ff;
+}
+
+/* Theme 2: Midnight Indigo */
+body[data-theme="midnight"] {
+  --bg-page: #0a0d18;
+  --bg-card: rgba(18, 22, 40, 0.7);
+  --bg-cell: rgba(26, 32, 58, 0.65);
+  --bg-cell-hover: rgba(36, 45, 82, 0.85);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(129, 140, 248, 0.5);
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --color-x: #818cf8;
+  --color-x-glow: rgba(129, 140, 248, 0.4);
+  --color-o: #fbbf24;
+  --color-o-glow: rgba(251, 191, 36, 0.4);
+  --color-tie: #38bdf8;
+  --color-tie-glow: rgba(56, 189, 248, 0.3);
+
+  --strike-color: #818cf8;
+}
+
+/* Theme 3: Clean Light Glass */
+body[data-theme="light"] {
+  --bg-page: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-cell: rgba(241, 245, 249, 0.9);
+  --bg-cell-hover: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-active: rgba(37, 99, 235, 0.4);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+
+  --color-x: #2563eb;
+  --color-x-glow: rgba(37, 99, 235, 0.3);
+  --color-o: #e11d48;
+  --color-o-glow: rgba(225, 29, 72, 0.3);
+  --color-tie: #d97706;
+  --color-tie-glow: rgba(217, 119, 6, 0.25);
+
+  --strike-color: #2563eb;
+}
+
+/* --------------------------------------------------------------------------
+   Global Reset & Canvas Setup
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+.confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Background Ambient Orbs */
+.bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.glow-primary {
+  top: -120px;
+  left: 15%;
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, var(--color-x-glow) 0%, transparent 70%);
+}
+
+.glow-secondary {
+  bottom: -120px;
+  right: 15%;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, var(--color-o-glow) 0%, transparent 70%);
+}
+
+/* --------------------------------------------------------------------------
+   App Header & Toolbar
+   -------------------------------------------------------------------------- */
+.app-header {
+  width: 100%;
+  max-width: 600px;
+  padding: 1.5rem 1.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+}
+
+.app-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 1.15rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.mark-x { color: var(--color-x); text-shadow: 0 0 10px var(--color-x-glow); }
+.mark-o { color: var(--color-o); text-shadow: 0 0 10px var(--color-o-glow); }
+
+.highlight {
+  color: var(--color-x);
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(10px);
+}
+
+.tool-btn:hover {
+  background: var(--bg-cell-hover);
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   Game Container & Settings Panel
+   -------------------------------------------------------------------------- */
+.game-container {
+  width: 100%;
+  max-width: 480px;
+  padding: 0.5rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  z-index: 10;
+}
+
+/* Mode Switch Tabs */
+.segmented-control {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  backdrop-filter: blur(16px);
+}
+
+.segment-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.segment-btn:hover {
+  color: var(--text-main);
+}
+
+.segment-btn.active {
+  background: var(--bg-cell-hover);
+  color: var(--text-main);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+}
+
+/* AI Config Bar */
+.ai-config-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  backdrop-filter: blur(16px);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-config-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.config-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.config-select {
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.config-select:focus {
+  border-color: var(--border-active);
+}
+
+.marker-pick-group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.marker-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.marker-btn.active {
+  background: var(--color-x);
+  border-color: var(--color-x);
+  color: #06090e;
+  font-weight: 800;
+}
+
+/* --------------------------------------------------------------------------
+   Scoreboard
+   -------------------------------------------------------------------------- */
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.score-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(16px);
+}
+
+.score-card.active-turn {
+  border-color: var(--border-active);
+  box-shadow: 0 0 20px -5px var(--border-active);
+  transform: translateY(-2px);
+}
+
+.player-marker {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.x-color { color: var(--color-x); text-shadow: 0 0 10px var(--color-x-glow); }
+.o-color { color: var(--color-o); text-shadow: 0 0 10px var(--color-o-glow); }
+.tie-color { color: var(--color-tie); }
+
+.player-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+}
+
+.score-digits {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+/* Turn Status Banner */
+.status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 0.925rem;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+}
+
+.turn-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.current-x-dot {
+  background: var(--color-x);
+  box-shadow: 0 0 10px var(--color-x);
+}
+
+.current-o-dot {
+  background: var(--color-o);
+  box-shadow: 0 0 10px var(--color-o);
+}
+
+/* --------------------------------------------------------------------------
+   3x3 Tic-Tac-Toe Board
+   -------------------------------------------------------------------------- */
+.board-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+.cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-cell);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: clamp(2.8rem, 10vw, 4.2rem);
+  font-weight: 800;
+  cursor: pointer;
+  outline: none;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  user-select: none;
+}
+
+/* Unoccupied cell hover state */
+.cell:not(.marked):not(:disabled):hover {
+  background: var(--bg-cell-hover);
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+
+.cell:not(.marked):not(:disabled):active {
+  transform: scale(0.96);
+}
+
+/* Subtle ghost hover preview of the active player's marker */
+.board-turn-x .cell:not(.marked):not(:disabled):hover::after {
+  content: '✕';
+  position: absolute;
+  color: var(--color-x);
+  opacity: 0.25;
+  filter: blur(1px);
+}
+
+.board-turn-o .cell:not(.marked):not(:disabled):hover::after {
+  content: '○';
+  position: absolute;
+  color: var(--color-o);
+  opacity: 0.25;
+  filter: blur(1px);
+}
+
+/* Marked Cell Content & Pop-in Animation */
+.cell.marked {
+  cursor: default;
+}
+
+.cell.marked.cell-x {
+  color: var(--color-x);
+  text-shadow: 0 0 16px var(--color-x-glow);
+  animation: markPop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.cell.marked.cell-o {
+  color: var(--color-o);
+  text-shadow: 0 0 16px var(--color-o-glow);
+  animation: markPop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes markPop {
+  0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  70% { transform: scale(1.15) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Winning Cells Pulsing Aura */
+.cell.win-cell {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: #ffffff;
+  animation: winGlow 1.2s infinite alternate ease-in-out;
+  z-index: 2;
+}
+
+@keyframes winGlow {
+  0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 255, 255, 0.4); }
+  100% { transform: scale(1.04); box-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+}
+
+/* --------------------------------------------------------------------------
+   Dynamic Winning Strike Line
+   -------------------------------------------------------------------------- */
+.win-strike {
+  position: absolute;
+  pointer-events: none;
+  background: var(--strike-color);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 20px var(--strike-color);
+  z-index: 5;
+  display: none;
+  transition: all 0.3s ease-out;
+}
+
+/* Strike configurations */
+.win-strike.row-0 { display: block; top: 16.66%; left: 6%; width: 88%; height: 6px; transform: translateY(-50%); animation: drawLineH 0.3s ease-out; }
+.win-strike.row-1 { display: block; top: 50%; left: 6%; width: 88%; height: 6px; transform: translateY(-50%); animation: drawLineH 0.3s ease-out; }
+.win-strike.row-2 { display: block; top: 83.33%; left: 6%; width: 88%; height: 6px; transform: translateY(-50%); animation: drawLineH 0.3s ease-out; }
+
+.win-strike.col-0 { display: block; left: 16.66%; top: 6%; height: 88%; width: 6px; transform: translateX(-50%); animation: drawLineV 0.3s ease-out; }
+.win-strike.col-1 { display: block; left: 50%; top: 6%; height: 88%; width: 6px; transform: translateX(-50%); animation: drawLineV 0.3s ease-out; }
+.win-strike.col-2 { display: block; left: 83.33%; top: 6%; height: 88%; width: 6px; transform: translateX(-50%); animation: drawLineV 0.3s ease-out; }
+
+.win-strike.diag-0 {
+  display: block;
+  top: 50%;
+  left: 5%;
+  width: 125%;
+  height: 6px;
+  transform: translateY(-50%) rotate(45deg);
+  transform-origin: center;
+  animation: drawLineDiag 0.35s ease-out;
+}
+
+.win-strike.diag-1 {
+  display: block;
+  top: 50%;
+  left: 5%;
+  width: 125%;
+  height: 6px;
+  transform: translateY(-50%) rotate(-45deg);
+  transform-origin: center;
+  animation: drawLineDiag 0.35s ease-out;
+}
+
+@keyframes drawLineH {
+  from { width: 0; }
+  to { width: 88%; }
+}
+
+@keyframes drawLineV {
+  from { height: 0; }
+  to { height: 88%; }
+}
+
+@keyframes drawLineDiag {
+  from { transform: translateY(-50%) scaleX(0); }
+  to { transform: translateY(-50%) scaleX(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Match Bottom Controls
+   -------------------------------------------------------------------------- */
+.game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-main);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(12px);
+}
+
+.ctrl-btn:hover {
+  background: var(--bg-cell-hover);
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+
+.btn-restart {
+  background: linear-gradient(135deg, var(--color-x), var(--color-o));
+  color: #06090e;
+  border: none;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.3);
+}
+
+.btn-restart:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.45);
+}
+
+.btn-kbd {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Modals & Dialogs
+   -------------------------------------------------------------------------- */
+.game-modal {
+  border: none;
+  background: transparent;
+  padding: 1.5rem;
+  max-width: 440px;
+  width: 90%;
+  margin: auto;
+}
+
+.game-modal::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 2rem;
+  color: var(--text-main);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.modal-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.modal-heading {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.modal-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.modal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-x), var(--color-o));
+  color: #06090e;
+  border: none;
+  font-weight: 800;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: var(--bg-cell);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-cell-hover);
+}
+
+.modal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  text-align: left;
+}
+
+.close-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.close-icon-btn:hover {
+  color: var(--text-main);
+  background: var(--bg-cell);
+}
+
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  text-align: left;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+}
+
+.kbd-group {
+  display: flex;
+  gap: 0.35rem;
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.18rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+/* Toast Notification */
+.toast-box {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0.55rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+
+.toast-box.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .game-container {
+    padding: 0.5rem 1rem 2rem;
+  }
+
+  .scoreboard {
+    gap: 0.5rem;
+  }
+
+  .score-card {
+    padding: 0.65rem 0.4rem;
+  }
+
+  .cell {
+    font-size: 2.6rem;
+  }
+
+  .ai-config-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+}
