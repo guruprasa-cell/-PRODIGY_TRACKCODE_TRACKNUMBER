@@ -1,0 +1,823 @@
+/* ==========================================================================
+   Chronos Precision Stopwatch - Stylesheet
+   ========================================================================== */
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+}
+
+/* Theme: Dark (Default) */
+body[data-theme="dark"] {
+  --bg-page: #0a0d14;
+  --bg-card: rgba(18, 24, 38, 0.65);
+  --bg-card-hover: rgba(26, 35, 56, 0.85);
+  --bg-inset: rgba(10, 14, 23, 0.7);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(99, 102, 241, 0.5);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --accent-primary: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.3);
+  --color-start: #10b981;
+  --color-start-glow: rgba(16, 185, 129, 0.35);
+  --color-pause: #f59e0b;
+  --color-pause-glow: rgba(245, 158, 11, 0.35);
+  --color-reset: #ef4444;
+  --color-lap: #3b82f6;
+  --color-fastest: #10b981;
+  --color-fastest-bg: rgba(16, 185, 129, 0.12);
+  --color-slowest: #f43f5e;
+  --color-slowest-bg: rgba(244, 63, 94, 0.12);
+
+  --dial-track: rgba(255, 255, 255, 0.06);
+  --dial-progress: #6366f1;
+}
+
+/* Theme: Light */
+body[data-theme="light"] {
+  --bg-page: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: #ffffff;
+  --bg-inset: rgba(241, 245, 249, 0.8);
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-focus: rgba(37, 99, 235, 0.4);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+
+  --accent-primary: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.2);
+  --color-start: #059669;
+  --color-start-glow: rgba(5, 150, 105, 0.25);
+  --color-pause: #d97706;
+  --color-pause-glow: rgba(217, 119, 6, 0.25);
+  --color-reset: #dc2626;
+  --color-lap: #2563eb;
+  --color-fastest: #059669;
+  --color-fastest-bg: rgba(5, 150, 105, 0.1);
+  --color-slowest: #e11d48;
+  --color-slowest-bg: rgba(225, 29, 72, 0.1);
+
+  --dial-track: rgba(0, 0, 0, 0.06);
+  --dial-progress: #2563eb;
+}
+
+/* Theme: Cyberpunk Neon */
+body[data-theme="cyber"] {
+  --bg-page: #05070a;
+  --bg-card: rgba(10, 15, 22, 0.8);
+  --bg-card-hover: rgba(15, 25, 38, 0.9);
+  --bg-inset: #020406;
+  --border-color: rgba(0, 245, 160, 0.2);
+  --border-focus: #00f5a0;
+  --text-main: #f0fdf4;
+  --text-muted: #6ee7b7;
+  --text-dim: #047857;
+
+  --accent-primary: #00f5a0;
+  --accent-glow: rgba(0, 245, 160, 0.4);
+  --color-start: #00f5a0;
+  --color-start-glow: rgba(0, 245, 160, 0.4);
+  --color-pause: #facc15;
+  --color-pause-glow: rgba(250, 204, 21, 0.4);
+  --color-reset: #ff007f;
+  --color-lap: #00d2ff;
+  --color-fastest: #00f5a0;
+  --color-fastest-bg: rgba(0, 245, 160, 0.15);
+  --color-slowest: #ff007f;
+  --color-slowest-bg: rgba(255, 0, 127, 0.15);
+
+  --dial-track: rgba(0, 245, 160, 0.1);
+  --dial-progress: #00f5a0;
+}
+
+/* --------------------------------------------------------------------------
+   Global Resets & Base
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+/* Ambient glow orbs */
+.app-background-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+}
+
+.glow-1 {
+  top: -150px;
+  right: 15%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+}
+
+.glow-2 {
+  bottom: -150px;
+  left: 10%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+}
+
+/* --------------------------------------------------------------------------
+   Header / Toolbar
+   -------------------------------------------------------------------------- */
+.app-header {
+  width: 100%;
+  max-width: 900px;
+  padding: 1.5rem 1.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+}
+
+.app-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.logo-accent {
+  color: var(--accent-primary);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  backdrop-filter: blur(10px);
+}
+
+.tool-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   Main Stopwatch Card & Dial Display
+   -------------------------------------------------------------------------- */
+.stopwatch-container {
+  width: 100%;
+  max-width: 680px;
+  padding: 1rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.stopwatch-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2.75rem 2rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.4);
+}
+
+/* Circular Radial Dial Wrapper */
+.dial-wrapper {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.dial-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* Starts progress arc at top (12 o'clock) */
+}
+
+.dial-track {
+  fill: none;
+  stroke: var(--dial-track);
+  stroke-width: 6;
+}
+
+.dial-progress {
+  fill: none;
+  stroke: var(--dial-progress);
+  stroke-width: 7;
+  stroke-linecap: round;
+  /* Circumference = 2 * PI * 140 ~= 879.64 */
+  stroke-dasharray: 879.64;
+  stroke-dashoffset: 879.64;
+  transition: stroke-dashoffset 0.08s linear, stroke var(--transition-smooth);
+}
+
+/* Digital Readout */
+.display-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 2;
+}
+
+.time-main {
+  font-family: var(--font-mono);
+  font-size: 3.3rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  display: flex;
+  align-items: baseline;
+}
+
+.unit-colon {
+  opacity: 0.65;
+  margin: 0 1px;
+}
+
+.time-sub {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-top: 0.35rem;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  display: flex;
+  align-items: baseline;
+}
+
+.sub-dot {
+  opacity: 0.7;
+}
+
+.current-lap-indicator {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.lap-tag-time {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Control Buttons
+   -------------------------------------------------------------------------- */
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.control-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.4rem;
+  min-width: 96px;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  position: relative;
+  font-family: var(--font-sans);
+}
+
+.control-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.control-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: var(--border-focus);
+}
+
+.control-btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.btn-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.btn-text {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.key-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+}
+
+/* Center Dominant Start / Pause Button */
+.btn-start {
+  min-width: 130px;
+  padding: 1rem 1.85rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-start);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8px 24px var(--color-start-glow);
+}
+
+.btn-start:not(:disabled):hover {
+  filter: brightness(1.1);
+  box-shadow: 0 12px 28px var(--color-start-glow);
+  transform: translateY(-3px);
+}
+
+.btn-start.running {
+  background: var(--color-pause);
+  box-shadow: 0 8px 24px var(--color-pause-glow);
+}
+
+.btn-start.running:not(:disabled):hover {
+  box-shadow: 0 12px 28px var(--color-pause-glow);
+}
+
+/* Lap button active styling */
+.btn-lap:not(:disabled):hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--color-lap);
+  color: var(--color-lap);
+}
+
+/* Reset button active styling */
+.btn-reset:not(:disabled):hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--color-reset);
+  color: var(--color-reset);
+}
+
+/* --------------------------------------------------------------------------
+   Statistics Summary Panel
+   -------------------------------------------------------------------------- */
+.stats-card {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  backdrop-filter: blur(16px);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-fastest .stat-value {
+  color: var(--color-fastest);
+}
+
+.stat-slowest .stat-value {
+  color: var(--color-slowest);
+}
+
+/* --------------------------------------------------------------------------
+   Laps Table & History
+   -------------------------------------------------------------------------- */
+.laps-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  backdrop-filter: blur(20px);
+}
+
+.laps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.laps-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.laps-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.laps-count-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+
+.laps-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.laps-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+}
+
+.laps-action-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-main);
+  border-color: var(--border-focus);
+}
+
+.btn-danger-soft:hover {
+  border-color: var(--color-reset);
+  color: var(--color-reset);
+}
+
+/* Empty State */
+.laps-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.empty-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+/* Laps Table */
+.laps-table-wrapper {
+  max-height: 380px;
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+}
+
+.laps-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.laps-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 5;
+}
+
+.laps-table td {
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.laps-table tbody tr {
+  animation: lapRowEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lapRowEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lap-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.lap-pill-fastest {
+  background: var(--color-fastest-bg);
+  color: var(--color-fastest);
+  border: 1px solid var(--color-fastest);
+}
+
+.lap-pill-slowest {
+  background: var(--color-slowest-bg);
+  color: var(--color-slowest);
+  border: 1px solid var(--color-slowest);
+}
+
+.row-fastest td {
+  color: var(--color-fastest);
+  font-weight: 700;
+}
+
+.row-slowest td {
+  color: var(--color-slowest);
+  font-weight: 700;
+}
+
+.delta-pos {
+  color: var(--color-slowest);
+}
+
+.delta-neg {
+  color: var(--color-fastest);
+}
+
+.delta-neutral {
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------------------
+   Shortcuts Modal Dialog
+   -------------------------------------------------------------------------- */
+.modal-dialog {
+  border: none;
+  background: transparent;
+  padding: 1.5rem;
+  max-width: 440px;
+  width: 90%;
+  margin: auto;
+}
+
+.modal-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.dialog-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  color: var(--text-main);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.dialog-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.dialog-close:hover {
+  color: var(--text-main);
+  background: var(--bg-inset);
+}
+
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+/* Toast Notifications */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0.6rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+
+.toast-notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Design
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .dial-wrapper {
+    width: 260px;
+    height: 260px;
+  }
+
+  .dial-svg {
+    transform: rotate(-90deg) scale(0.8125);
+  }
+
+  .time-main {
+    font-size: 2.5rem;
+  }
+
+  .time-sub {
+    font-size: 1.4rem;
+  }
+
+  .controls-wrapper {
+    gap: 0.75rem;
+  }
+
+  .control-btn {
+    min-width: 76px;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .btn-start {
+    min-width: 100px;
+    padding: 0.85rem 1.25rem;
+  }
+
+  .stats-card {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .th-delta, td:nth-child(4) {
+    display: none;
+  }
+}

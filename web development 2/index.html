@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chronos Precision Stopwatch</title>
+  <meta name="description" content="A precision stopwatch web application featuring millisecond accuracy, lap tracking with fastest/slowest analysis, audio ticks, keyboard shortcuts, and theme switcher." />
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="dark">
+
+  <div class="app-background-glow glow-1" aria-hidden="true"></div>
+  <div class="app-background-glow glow-2" aria-hidden="true"></div>
+
+  <!-- Header / App Bar -->
+  <header class="app-header">
+    <div class="app-logo">
+      <span class="logo-icon">⏱️</span>
+      <span class="logo-text">Chronos<span class="logo-accent">Precision</span></span>
+    </div>
+
+    <!-- Utilities Toolbar (Sound, Theme, Shortcuts Help) -->
+    <div class="app-toolbar">
+      <button class="tool-btn" id="soundToggleBtn" title="Toggle Sound Feedback (Muted by default)" aria-label="Toggle sound effects">
+        <span class="tool-icon" id="soundIcon">🔇</span>
+        <span class="tool-label">Sound</span>
+      </button>
+
+      <button class="tool-btn" id="shortcutsBtn" title="Keyboard Shortcuts" aria-label="View keyboard shortcuts">
+        <span class="tool-icon">⌨️</span>
+        <span class="tool-label">Keys</span>
+      </button>
+
+      <div class="theme-picker">
+        <button class="tool-btn" id="themeBtn" aria-label="Switch visual theme" title="Switch visual theme">
+          <span class="tool-icon" id="themeIcon">🌙</span>
+          <span class="tool-label" id="themeName">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Stopwatch Stage -->
+  <main class="stopwatch-container">
+
+    <!-- Radial Dial & Digital Display Container -->
+    <div class="stopwatch-card">
+      <div class="dial-wrapper">
+        <!-- SVG Circular Ring Indicator -->
+        <svg class="dial-svg" viewBox="0 0 320 320" aria-hidden="true">
+          <!-- Background track -->
+          <circle class="dial-track" cx="160" cy="160" r="140" />
+          <!-- Animated progress arc (60 seconds per loop) -->
+          <circle class="dial-progress" id="dialProgress" cx="160" cy="160" r="140" />
+        </svg>
+
+        <!-- Digital Readout -->
+        <div class="display-container" role="timer" aria-live="off" aria-atomic="true">
+          <!-- Hours & Minutes : Seconds -->
+          <div class="time-main">
+            <span class="time-segment" id="hoursGroup"><span class="digits" id="hours">00</span><span class="unit-colon">:</span></span>
+            <span class="time-segment"><span class="digits" id="minutes">00</span><span class="unit-colon">:</span></span>
+            <span class="time-segment"><span class="digits" id="seconds">00</span></span>
+          </div>
+          <!-- Milliseconds / Hundredths (Tabular Monospace) -->
+          <div class="time-sub">
+            <span class="sub-dot">.</span>
+            <span class="sub-digits" id="milliseconds">000</span>
+          </div>
+
+          <!-- Current Running Lap Status Tag -->
+          <div class="current-lap-indicator" id="currentLapIndicator">
+            <span class="lap-tag-label">Current Lap:</span>
+            <span class="lap-tag-time" id="currentLapDisplay">00:00.000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Action Controls -->
+      <div class="controls-wrapper">
+        <!-- Lap Button (Left) -->
+        <button class="control-btn btn-lap" id="lapBtn" disabled aria-label="Record lap time">
+          <span class="btn-icon">🏁</span>
+          <span class="btn-text">Lap</span>
+          <span class="key-badge">L</span>
+        </button>
+
+        <!-- Start / Pause / Resume Button (Center, Dominant) -->
+        <button class="control-btn btn-start" id="startPauseBtn" aria-label="Start stopwatch">
+          <span class="btn-icon" id="startPauseIcon">▶</span>
+          <span class="btn-text" id="startPauseText">Start</span>
+          <span class="key-badge">Space</span>
+        </button>
+
+        <!-- Reset Button (Right) -->
+        <button class="control-btn btn-reset" id="resetBtn" disabled aria-label="Reset stopwatch">
+          <span class="btn-icon">↺</span>
+          <span class="btn-text">Reset</span>
+          <span class="key-badge">R</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Statistics Panel (Active when laps exist) -->
+    <div class="stats-card" id="statsCard" style="display: none;">
+      <div class="stat-item">
+        <span class="stat-label">Total Laps</span>
+        <span class="stat-value" id="statTotalLaps">0</span>
+      </div>
+      <div class="stat-item stat-fastest">
+        <span class="stat-label">Fastest Lap</span>
+        <span class="stat-value" id="statFastestLap">--:--.---</span>
+      </div>
+      <div class="stat-item stat-slowest">
+        <span class="stat-label">Slowest Lap</span>
+        <span class="stat-value" id="statSlowestLap">--:--.---</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Average Lap</span>
+        <span class="stat-value" id="statAvgLap">--:--.---</span>
+      </div>
+    </div>
+
+    <!-- Laps Record Section -->
+    <section class="laps-container" id="lapsContainer" aria-label="Recorded Laps">
+      <div class="laps-header">
+        <div class="laps-title-group">
+          <h2 class="laps-title">Recorded Laps</h2>
+          <span class="laps-count-badge" id="lapsCountBadge">0 Laps</span>
+        </div>
+
+        <div class="laps-actions" id="lapsActions" style="display: none;">
+          <button class="laps-action-btn" id="copyLapsBtn" title="Copy laps to clipboard">
+            <span>📋</span> Copy
+          </button>
+          <button class="laps-action-btn" id="exportCsvBtn" title="Export as CSV">
+            <span>⬇️</span> CSV
+          </button>
+          <button class="laps-action-btn btn-danger-soft" id="clearLapsBtn" title="Clear all lap history">
+            <span>🗑️</span> Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State Placeholder -->
+      <div class="laps-empty" id="lapsEmpty">
+        <div class="empty-icon">⏱️</div>
+        <p class="empty-title">No laps recorded yet</p>
+        <p class="empty-subtitle">Start the stopwatch and click "Lap" or press <kbd>L</kbd> to record split intervals.</p>
+      </div>
+
+      <!-- Laps List Table -->
+      <div class="laps-table-wrapper" id="lapsTableWrapper" style="display: none;">
+        <table class="laps-table">
+          <thead>
+            <tr>
+              <th scope="col" class="th-lap">Lap</th>
+              <th scope="col" class="th-split">Lap Time</th>
+              <th scope="col" class="th-total">Overall Time</th>
+              <th scope="col" class="th-delta">Difference</th>
+            </tr>
+          </thead>
+          <tbody id="lapsListBody">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Keyboard Shortcuts Modal Dialog -->
+  <dialog class="modal-dialog" id="shortcutsDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h3 id="dialogTitle">⌨️ Keyboard Shortcuts</h3>
+        <button class="dialog-close" id="closeDialogBtn" aria-label="Close shortcuts dialog">✕</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-row">
+          <kbd>Space</kbd> or <kbd>S</kbd>
+          <span>Start / Pause / Resume timing</span>
+        </div>
+        <div class="shortcut-row">
+          <kbd>L</kbd>
+          <span>Record Lap</span>
+        </div>
+        <div class="shortcut-row">
+          <kbd>R</kbd>
+          <span>Reset stopwatch to zero</span>
+        </div>
+        <div class="shortcut-row">
+          <kbd>M</kbd>
+          <span>Mute / Unmute sound ticks</span>
+        </div>
+        <div class="shortcut-row">
+          <kbd>Esc</kbd>
+          <span>Close shortcut window</span>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Notification Toast -->
+  <div class="toast-notification" id="toastNotification" role="alert" aria-live="polite"></div>
+
+  <!-- JavaScript Application Logic -->
+  <script src="script.js"></script>
+</body>
+</html>
